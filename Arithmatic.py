@@ -5,4 +5,8 @@ diff = a - b
 mul = a * b
 div = a / b
 power = a ** b
-print("Operations on the numbers, Sum =",sum, "difference = ", diff, "Multiplication =", mul, "division =", div, "power = ", power)
+print ("addition =",sum)
+print ("subtraction =",diff)
+print ("multiplication =",mul)
+print ("division =",div)
+print ("power =",power)
