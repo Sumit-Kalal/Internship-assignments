@@ -1,0 +1,2 @@
+Day 04
+I have written 4 programs, for the For loop there is a program that returns the sum of all numbers divisible by 3 until the given number. For the while loop, the test of Collrtz's conjection is done. Then there is multiplication table and star pattern.
