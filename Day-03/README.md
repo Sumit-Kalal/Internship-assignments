@@ -1,2 +1,4 @@
 Day 03
-I have written 3 programs to find out if a number is even or odd, the grestest of the given set of numbers and determination of results by examination of the marks obtained.
+The first program is to determine whether the given number is even or odd.
+The second program is to determine the largest of the given numbers.
+The Third progrma can be used to print out the result based on the marks obtained.
