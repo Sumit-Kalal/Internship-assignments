@@ -8,3 +8,6 @@ Day-4
 The program assigned were, "Programs using for and while loops", "Multiplication table" and "Star pattern programs". The respectives programs and their screenshots are added to the repository
 Day-05
 The programs assinged were, "Program to check for prime numbers", "Programs to find the factorial of the given number", and "functional arithmatic"
+Day-06
+Solved and implemented 5 logical algorithmic problems to strengthen core problem-solving and coding fundamentals. The programs are Palindrome checker, Fibonacci series generator, reversed number generator, Armstrong's number checker and perfect number checker.
+
