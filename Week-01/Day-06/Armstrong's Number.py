@@ -10,4 +10,4 @@ while temp>0:
 if sum==num:
     print(f"{num} is an Armstrong's number")
 else:
-    print(f"{num} is not an Armstrong's number")
+    print(f"{num} is not an Armstrong's number") 

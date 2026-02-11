@@ -6,4 +6,4 @@ while n!=1:
         n=n//2
     else:
         n=3*n+1
-print(1)
+print(1) 

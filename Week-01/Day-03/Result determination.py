@@ -6,4 +6,4 @@ elif marks>60:
 elif marks>40:
     print("You have passed.")
 else:
-    print("You have failed, better luck next time.")
+    print("You have failed, better luck next time.") 

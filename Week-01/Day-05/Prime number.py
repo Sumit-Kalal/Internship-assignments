@@ -12,4 +12,4 @@ def prime(n):
             print("The given number",n,"is a prime number.")
 
 num=int(input("Enter a number to check if it's prime: "))
-prime(num)
+prime(num) 

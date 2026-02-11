@@ -6,4 +6,4 @@ while num>0:
     rev_num=rev_num*10+digit
     num//=10
     
-print("Reversed number is:",rev_num)
+print("Reversed number is:",rev_num) 

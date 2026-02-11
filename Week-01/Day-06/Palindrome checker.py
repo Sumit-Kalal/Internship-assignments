@@ -11,4 +11,4 @@ while temp>0:
 if num==rev_num:
     print(f"{num} is a palindrome")
 else:
-    print(f"{num} is not a palindrome")
+    print(f"{num} is not a palindrome") 
