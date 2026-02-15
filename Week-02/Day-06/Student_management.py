@@ -51,7 +51,7 @@ def delete_student():
         print("Student ID not found.")
 
 while True:
-    print("\nStudent Management System")
+    print("\n Student Management System")
     print("1. Add Student")
     print("2. View Students")
     print("3. Update Student")
