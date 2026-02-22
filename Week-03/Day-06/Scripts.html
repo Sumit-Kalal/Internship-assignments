@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Understanding JavaScript</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #b532d9, #764ba2);
+  font-family: Arial, sans-serif;
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+
+.wrapper {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 25px;
+  background: white;
+  color: black;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+h1, h2 {
+  text-align: center;
+  margin-top: 10px;
+}
+
+p {
+  font-size: 16px;
+}
+
+section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+button {
+  padding: 12px 22px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #401710, #ff4b2b);
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+input, select {
+  padding: 10px;
+  font-size: 15px;
+  width: 100%;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+#result {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<h1>JavaScript Demo Page</h1>
+
+
+<section>
+  <h2>1. Alert on Button Click</h2>
+  <p>Click the button to trigger a JavaScript popup alert.</p>
+  <button onclick="showAlert()">Click Me</button>
+</section>
+
+<section>
+  <h2>2. Form Validation</h2>
+  <p>Dont leave any fields empty.</p>
+
+  <form onsubmit="return validateForm()">
+    <input id="name" placeholder="Name">
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button type="submit">Submit</button>
+  </form>
+</section>
+
+<section>
+  <h2>3. Simple Calculator</h2>
+  <p>Enter two numbers, choose an operator, and calculate.</p>
+
+  <input id="num1" type="number" placeholder="Number 1">
+  <select id="operator">
+    <option>+</option>
+    <option>-</option>
+    <option>*</option>
+    <option>/</option>
+  </select>
+  <input id="num2" type="number" placeholder="Number 2">
+  <button onclick="calculate()">Calculate</button>
+
+  <p id="result"></p>
+</section>
+
+<section>
+  <h2>4. Change Text on Click</h2>
+  <p id="text">Press the button below for a treat</p>
+  <button onclick="changeText()">HERE!!</button>
+</section>
+
+</div>
+<script src="Scripts.js"></script>
+</body>
+</html>
