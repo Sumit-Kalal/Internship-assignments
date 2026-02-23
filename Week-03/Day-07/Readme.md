@@ -1,0 +1,2 @@
+# Week-03, Day-07
+Today's assignment was to create a website, with a Home, Login, Register and Contact us page. All the pages share a common style css file. A javascript file to make the pages interactive and dynamic.

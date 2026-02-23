@@ -1,0 +1,42 @@
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #bdf7f8;
+  text-align: center;
+}
+
+header {
+  background: linear-gradient(135deg,#6a11cb,#2575fc);
+  color: white;
+  padding: 15px;
+}
+
+nav a {
+  color: white;
+  margin: 10px;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.box {
+  background: rgb(252, 254, 253);
+  padding: 20px;
+  margin: 30px auto;
+  width: 60%;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+input, textarea {
+  padding: 10px;
+  width: 250px;
+  margin: 5px;
+}
+
+button {
+  padding:10px 20px;
+  background: #504f4f;
+  color: white;
+  border: black;
+  border-radius: 6px;
+}
