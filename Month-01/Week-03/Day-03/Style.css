@@ -1,0 +1,51 @@
+/* Apply background color and font styling */
+body {
+    background-color: white;   
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Heading styling */
+h1 {
+    color: black;
+    text-align: left;
+    margin-top: 20px;
+}
+/*Heading styling */
+h2 {
+    color: black;
+    text-align: left;
+    margin-left: 20px;
+    margin-top: 20px;
+}
+/* Paragraph styling */
+p {
+    font-size: 12px;
+    color: black;
+    margin: 10px 20px;
+}
+
+/* Box with border, margin, padding */
+.box {
+    border: 2px solid black;
+    padding: 15px;
+    margin: 20px;
+    background-color: white;
+}
+
+/* Button styling */
+button {
+    background-color: rgb(37, 70, 82);
+    color: white;
+    border: black;
+    padding: 10px 18px;
+    margin: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Button hover effect */
+button:hover {
+    background-color: blue;
+}

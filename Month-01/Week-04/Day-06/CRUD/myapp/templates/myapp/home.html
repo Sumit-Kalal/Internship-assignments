@@ -1,0 +1,15 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home page</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/style.css' %}">
+</head>
+<body>
+    <h1>Welcome to Student Records</h1>
+    <nav>
+        <a href="{% url 'add' %}">Add Student</a> |
+        <a href="{% url 'view_entries' %}">View Students</a>
+    </nav>
+</body>
+</html>

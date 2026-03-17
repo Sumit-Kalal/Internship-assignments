@@ -1,0 +1,7 @@
+# This was the output of the program written.
+
+This the fourth day of the week-02 and today we learn about file handling
+Adding the student details.
+Name:Sumit 
+Age:19 
+Course:PCM
