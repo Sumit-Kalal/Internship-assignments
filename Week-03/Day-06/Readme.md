@@ -1,2 +1,0 @@
-# Week-03, Day-06
-Today's assignment was to use a JavaScript file to make the html pages more interactive and responsive. I created a page where user details are taken, a simple calculator and a change text button.
