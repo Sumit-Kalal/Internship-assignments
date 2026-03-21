@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SetLIT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<script src="management.js" defer></script>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+            <h1 class="logo">SetLIT Dashboard</h1>
+            <ul class="nav-links">
+                <li><a href="profile.html">Profile</a></li>
+                <button class="btn" onclick="logout()">Logout</button>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="profile-container">
+
+        <h2 style="margin-bottom: 20px;">Dashboard Overview</h2>
+
+        <div class="dashboard-grid">
+
+            <div class="card dashboard-card">
+                <h3>Total Electricians</h3>
+                <p class="card-value" id="total-electricians">25</p>
+            </div>
+            <div class="card dashboard-card">
+                <h3>Active Jobs</h3>
+                <p class="card-value" id="active-jobs">12</p>
+            </div>
+            <div class="card dashboard-card">
+                <h3>Pending Tasks</h3>
+                <p class="card-value" id="pending-tasks">8</p>
+            </div>
+            <div class="card dashboard-card">
+                <h3>Completed Work</h3>
+                <p class="card-value" id="completed-work">40</p>
+            </div>
+        </div>
+
+    </section>
+
+    <footer>
+        <p>© 2026 SetLIT. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

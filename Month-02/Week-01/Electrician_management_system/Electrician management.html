@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrician Management - SetLIT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<script src="management.js" defer></script>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+            <h1 class="logo">Electrician Management</h1>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="reports.html">Reports</a></li>
+                <li><a href="Job management.html">Jobs</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <button class="btn" onclick="logout()">Logout</button>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="profile-container">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Electricians</h2>
+            <button class="btn primary" onclick="addElectrician()">+ Add Electrician</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Raj Kumar</td>
+                        <td>9876543210</td>
+                        <td><span class="status available">Available</span></td>
+                        <td>
+                            <button class="btn" onclick="editElectrician(1)">Edit</button>
+                            <button class="btn" style="border-color: red; color: red;" onclick="deleteElectrician(1)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>Amit Sharma</td>
+                        <td>9123456780</td>
+                        <td><span class="status busy">Busy</span></td>
+                        <td>
+                            <button class="btn" onclick="editElectrician(2)">Edit</button>
+                            <button class="btn" style="border-color: red; color: red;" onclick="deleteElectrician(2)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </section>
+
+    <footer>
+        <p>© 2026 SetLIT. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

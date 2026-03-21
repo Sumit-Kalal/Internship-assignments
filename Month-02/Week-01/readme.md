@@ -1,0 +1,5 @@
+# Month-02, Week-01
+This Week's assignement was to create a website for management of electricians and technicians. 
+- HTML was used to create the pages, the sytle is simple and minimalistic. The pages contain registration and login for the client. There are pages to check and track each individual electrician and technician, there progess for the assigned work and the a material inventory. A page for the overall report for the completed tasks, assigned and in  progess tasks with past data.
+- A single CSS file is used ensure similar style throughout all the pages. The styling is minimalistic and easy on the eye. Easy to interact with and simple to understand.
+- Javascript file is also used similar to the CSS file, all the functions are written for simple frontend checking. The scripts ensure authenticated login and registration. Only the admins can see the reports and other pages.
