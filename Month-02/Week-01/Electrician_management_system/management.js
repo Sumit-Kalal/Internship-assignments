@@ -1,28 +1,32 @@
 const currentPage = window.location.pathname.split("/").pop();
-const publicPages = [
-    "Home.html",
-    "login.html",
-    "register.html"
-];
+const publicPages = ["", "Home.html", "login", "login.html", "register", "register.html", "/"];
 
-if (!publicPages.includes(currentPage)) {
-    if (localStorage.getItem("loggedIn") !== "true") {
-        window.location.href = "login.html";
+async function handleUnauthorized(response) {
+    if (response.status === 401) {
+        alert("Please log in first.");
+        window.location.href = "/login";
+        return true;
     }
+    return false;
 }
 
 const loginForm = document.getElementById("loginForm");
 if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
         e.preventDefault();
+
         const formData = new FormData(loginForm);
-        const response = await fetch("/login", { method: "POST", body: formData });
-        if (response.redirected) {
-            localStorage.setItem("loggedIn", "true");
-            window.location.href = response.url;
+        const response = await fetch("/login", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            window.location.href = result.redirect || "/dashboard";
         } else {
-            const result = await response.json();
-            alert(result.message);
+            alert(result.message || "Login failed");
         }
     });
 }
@@ -31,10 +35,16 @@ const registerForm = document.getElementById("registerForm");
 if (registerForm) {
     registerForm.addEventListener("submit", async function (e) {
         e.preventDefault();
+
         const formData = new FormData(registerForm);
-        const response = await fetch("/register", { method: "POST", body: formData });
+        const response = await fetch("/register", {
+            method: "POST",
+            body: formData
+        });
+
         const result = await response.json();
-        if (response.ok) {
+
+        if (response.ok && result.success) {
             alert(result.message);
             window.location.href = "/login";
         } else {
@@ -43,10 +53,9 @@ if (registerForm) {
     });
 }
 
-function logout() {
-    localStorage.removeItem("loggedIn");
-    fetch("/logout"); // clear server session too
-    window.location.href = "Home.html";
+async function logout() {
+    await fetch("/logout");
+    window.location.href = "/home";
 }
 
 async function renderElectricians() {
@@ -54,6 +63,8 @@ async function renderElectricians() {
     if (!tbody) return;
 
     const response = await fetch("/api/electricians");
+    if (await handleUnauthorized(response)) return;
+
     const data = await response.json();
 
     tbody.innerHTML = "";
@@ -62,7 +73,7 @@ async function renderElectricians() {
             <tr>
                 <td>${e.id}</td>
                 <td>${e.name}</td>
-                <td>${e.phone}</td>
+                <td>${e.phone ?? ""}</td>
                 <td>
                     <span class="status ${e.status}">
                         ${e.status}
@@ -89,8 +100,12 @@ async function addElectrician() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, phone, status })
     });
+
+    if (await handleUnauthorized(response)) return;
+
     const result = await response.json();
     if (result.success) renderElectricians();
+    else alert(result.message);
 }
 
 async function editElectrician(id) {
@@ -103,15 +118,23 @@ async function editElectrician(id) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newName, phone: newPhone, status: newStatus })
     });
+
+    if (await handleUnauthorized(response)) return;
+
     const result = await response.json();
     if (result.success) renderElectricians();
+    else alert(result.message);
 }
 
 async function deleteElectrician(id) {
     if (!confirm("Delete this electrician?")) return;
+
     const response = await fetch(`/api/electricians/${id}`, { method: "DELETE" });
+    if (await handleUnauthorized(response)) return;
+
     const result = await response.json();
     if (result.success) renderElectricians();
+    else alert(result.message);
 }
 
 async function renderMaterials() {
@@ -119,6 +142,8 @@ async function renderMaterials() {
     if (!tbody) return;
 
     const response = await fetch("/api/materials");
+    if (await handleUnauthorized(response)) return;
+
     const data = await response.json();
 
     tbody.innerHTML = "";
@@ -143,53 +168,72 @@ async function addMaterial() {
     const name = prompt("Material Name:");
     const quantity = prompt("Quantity:");
     const status = prompt("Status:", "Available");
+    const usage = prompt("Usage:", "");
     if (!name) return;
 
     const response = await fetch("/api/materials", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, quantity, status })
+        body: JSON.stringify({ name, quantity, status, usage })
     });
+
+    if (await handleUnauthorized(response)) return;
+
     const result = await response.json();
     if (result.success) renderMaterials();
+    else alert(result.message);
 }
 
 async function editMaterial(id) {
     const newName = prompt("Edit Name:");
     const newQuantity = prompt("Edit Quantity:");
     const newStatus = prompt("Edit Status:");
+    const newUsage = prompt("Edit Usage:");
 
     const response = await fetch(`/api/materials/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName, quantity: newQuantity, status: newStatus })
+        body: JSON.stringify({ name: newName, quantity: newQuantity, status: newStatus, usage: newUsage })
     });
+
+    if (await handleUnauthorized(response)) return;
+
     const result = await response.json();
     if (result.success) renderMaterials();
+    else alert(result.message);
 }
 
 async function deleteMaterial(id) {
     if (!confirm("Delete this material?")) return;
+
     const response = await fetch(`/api/materials/${id}`, { method: "DELETE" });
+    if (await handleUnauthorized(response)) return;
+
     const result = await response.json();
     if (result.success) renderMaterials();
+    else alert(result.message);
 }
 
 async function createJob() {
     const title = prompt("Job Title:");
     const location = prompt("Location:");
-    const electrician_id = prompt("Electrician ID:"); // backend expects ID, not name
+    const electrician_id = prompt("Electrician ID:");
     const deadline = prompt("Deadline:");
     const status = prompt("Status:", "Pending");
 
-    if (!title) return;
+    if (!title || !location) return;
 
-    await fetch("/api/jobs", {
+    const response = await fetch("/api/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, location, deadline, status, electrician_id })
     });
-    renderJobs();
+
+    if (await handleUnauthorized(response)) return;
+
+    const result = await response.json();
+    if (result.success) renderJobs();
+    else alert(result.message);
 }
 
 async function editJob(id) {
@@ -199,7 +243,7 @@ async function editJob(id) {
     const newStatus = prompt("Edit Status:");
     const newElectricianId = prompt("Edit Electrician ID:");
 
-    await fetch(`/api/jobs/${id}`, {
+    const response = await fetch(`/api/jobs/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -210,13 +254,23 @@ async function editJob(id) {
             electrician_id: newElectricianId
         })
     });
-    renderJobs();
+
+    if (await handleUnauthorized(response)) return;
+
+    const result = await response.json();
+    if (result.success) renderJobs();
+    else alert(result.message);
 }
 
 async function deleteJob(id) {
     if (!confirm("Delete this job?")) return;
-    await fetch(`/api/jobs/${id}`, { method: "DELETE" });
-    renderJobs();
+
+    const response = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
+    if (await handleUnauthorized(response)) return;
+
+    const result = await response.json();
+    if (result.success) renderJobs();
+    else alert(result.message);
 }
 
 async function renderJobs() {
@@ -224,6 +278,8 @@ async function renderJobs() {
     if (!tbody) return;
 
     const response = await fetch("/api/jobs");
+    if (await handleUnauthorized(response)) return;
+
     const data = await response.json();
 
     tbody.innerHTML = "";
@@ -233,8 +289,8 @@ async function renderJobs() {
                 <td>${job.id}</td>
                 <td>${job.title}</td>
                 <td>${job.location}</td>
-                <td>${job.electrician_id}</td>
-                <td>${job.deadline}</td>
+                <td>${job.electrician_id ?? ""}</td>
+                <td>${job.deadline ?? ""}</td>
                 <td><span class="status">${job.status}</span></td>
                 <td>
                     <button class="btn" onclick="editJob(${job.id})">Edit</button>
@@ -247,29 +303,34 @@ async function renderJobs() {
 renderJobs();
 
 function getTaskStatus(progress) {
-    if (progress === 100) return "Completed";
-    if (progress === 0) return "Pending";
+    const value = parseInt(progress);
+    if (value === 100) return "Completed";
+    if (value === 0) return "Pending";
     return "In Progress";
 }
 
-async function renderTasks() {
+async function renderTasks(statusFilter = "") {
     const tbody = document.querySelector("#tasksTable tbody");
     if (!tbody) return;
 
-    const response = await fetch("/api/tasks");
+    const url = statusFilter ? `/api/tasks?status=${encodeURIComponent(statusFilter)}` : "/api/tasks";
+    const response = await fetch(url);
+    if (await handleUnauthorized(response)) return;
+
     const data = await response.json();
 
     tbody.innerHTML = "";
     data.forEach(task => {
-        const status = getTaskStatus(parseInt(task.progress));
+        const status = task.status || getTaskStatus(task.progress);
         tbody.innerHTML += `
             <tr>
                 <td>${task.id}</td>
                 <td>${task.task}</td>
-                <td>${task.name}</td>
+                <td>${task.name ?? ""}</td>
+                <td>${task.job_id ?? ""}</td>
                 <td>
                     <div class="progress-bar">
-                        <div class="progress" style="width: ${task.progress};"></div>
+                        <div class="progress" style="width: ${task.progress || "0%"};"></div>
                     </div>
                 </td>
                 <td><span class="status">${status}</span></td>
@@ -286,28 +347,35 @@ renderTasks();
 async function addTask() {
     const task = prompt("Task Name:");
     const name = prompt("Assign Electrician Name:");
+    const job_id = prompt("Job ID:");
     const progress = prompt("Progress (e.g. 50%):", "0%");
     const status = prompt("Status:", "Pending");
     const electrician_id = prompt("Electrician ID:");
 
-    if (!task) return;
+    if (!task || !job_id) return;
 
-    await fetch("/api/tasks", {
+    const response = await fetch("/api/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task, name, progress, status, electrician_id })
+        body: JSON.stringify({ task, name, progress, status, electrician_id, job_id })
     });
-    renderTasks();
+
+    if (await handleUnauthorized(response)) return;
+
+    const result = await response.json();
+    if (result.success) renderTasks();
+    else alert(result.message);
 }
 
 async function editTask(id) {
     const newTask = prompt("Edit Task:");
     const newName = prompt("Edit Electrician Name:");
+    const newJobId = prompt("Edit Job ID:");
     const newProgress = prompt("Edit Progress (e.g. 50%):");
     const newStatus = prompt("Edit Status:");
     const newElectricianId = prompt("Edit Electrician ID:");
 
-    await fetch(`/api/tasks/${id}`, {
+    const response = await fetch(`/api/tasks/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -315,16 +383,27 @@ async function editTask(id) {
             name: newName,
             progress: newProgress,
             status: newStatus,
-            electrician_id: newElectricianId
+            electrician_id: newElectricianId,
+            job_id: newJobId
         })
     });
-    renderTasks();
+
+    if (await handleUnauthorized(response)) return;
+
+    const result = await response.json();
+    if (result.success) renderTasks();
+    else alert(result.message);
 }
 
 async function deleteTask(id) {
     if (!confirm("Delete this task?")) return;
-    await fetch(`/api/tasks/${id}`, { method: "DELETE" });
-    renderTasks();
+
+    const response = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
+    if (await handleUnauthorized(response)) return;
+
+    const result = await response.json();
+    if (result.success) renderTasks();
+    else alert(result.message);
 }
 
 async function updateDashboard() {
@@ -332,6 +411,8 @@ async function updateDashboard() {
     if (!element) return;
 
     const response = await fetch("/api/electricians");
+    if (await handleUnauthorized(response)) return;
+
     const data = await response.json();
     element.innerText = data.length;
 }
