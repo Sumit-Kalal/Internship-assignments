@@ -4,7 +4,10 @@ from config import Config
 from models import db
 from routes import main
 
-app = Flask(__name__)
+app = Flask(__name__,
+    template_folder=r"C:\Users\sumit\.vscode\codes\Month-02\Week-01\Electrician_management_system",
+    static_folder=r"C:\Users\sumit\.vscode\codes\Month-02\Week-01\Electrician_management_system",
+    static_url_path="")
 
 app.config.from_object(Config)
 

@@ -482,7 +482,197 @@ def profile():
     return render_template("profile.html")
 
 
-@main.route("/reports.html")
-@login_required_page
-def reports():
-    return render_template("reports.html")
+@main.route("/api/jobs/search", methods=["GET"])
+@login_required_api
+def search_jobs():
+    query = request.args.get("q", "").strip()
+
+    if not query:
+        jobs = Job.query.all()
+    else:
+        jobs = Job.query.filter(
+            (Job.title.ilike(f"%{query}%")) |
+            (Job.location.ilike(f"%{query}%"))
+        ).all()
+
+    return jsonify([{
+        "id": j.id,
+        "title": j.title,
+        "location": j.location,
+        "deadline": j.deadline,
+        "status": j.status,
+        "electrician_id": j.electrician_id
+    } for j in jobs]), 200
+
+
+@main.route("/api/electricians/filter", methods=["GET"])
+@login_required_api
+def filter_electricians():
+    status = request.args.get("status", "").strip()
+    name = request.args.get("name", "").strip()
+
+    query = Electrician.query
+
+    if status:
+        query = query.filter(Electrician.status.ilike(f"%{status}%"))
+
+    if name:
+        query = query.filter(Electrician.name.ilike(f"%{name}%"))
+
+    electricians = query.all()
+
+    return jsonify([{
+        "id": e.id,
+        "name": e.name,
+        "phone": e.phone,
+        "status": e.status
+    } for e in electricians]), 200
+
+
+@main.route("/api/tasks/filter", methods=["GET"])
+@login_required_api
+def filter_tasks():
+    status = request.args.get("status", "").strip()
+
+    query = Task.query
+
+    if status:
+        query = query.filter(Task.status.ilike(f"%{status}%"))
+
+    tasks = query.all()
+
+    return jsonify([{
+        "id": t.id,
+        "task": t.task,
+        "name": t.name,
+        "progress": t.progress,
+        "status": t.status,
+        "electrician_id": t.electrician_id,
+        "job_id": t.job_id
+    } for t in tasks]), 200
+
+@main.route("/api/reports/daily-work", methods=["GET"])
+@login_required_api
+def daily_work_report():
+    jobs = Job.query.all()
+    tasks = Task.query.all()
+    electricians = Electrician.query.all()
+    materials = Material.query.all()
+
+    completed_tasks = [t for t in tasks if t.status and t.status.lower() == "completed"]
+    pending_tasks = [t for t in tasks if t.status and t.status.lower() == "pending"]
+    in_progress_tasks = [t for t in tasks if t.status and t.status.lower() == "in progress"]
+
+    return jsonify({
+        "total_jobs": len(jobs),
+        "total_tasks": len(tasks),
+        "total_electricians": len(electricians),
+        "total_materials": len(materials),
+        "completed_tasks": len(completed_tasks),
+        "pending_tasks": len(pending_tasks),
+        "in_progress_tasks": len(in_progress_tasks)
+    }), 200
+
+
+@main.route("/api/reports/task-completion", methods=["GET"])
+@login_required_api
+def task_completion_report():
+    tasks = Task.query.all()
+
+    return jsonify([{
+        "id": t.id,
+        "task": t.task,
+        "status": t.status,
+        "progress": t.progress,
+        "job_id": t.job_id,
+        "electrician_id": t.electrician_id
+    } for t in tasks]), 200
+
+
+@main.route("/api/reports/electrician-activity", methods=["GET"])
+@login_required_api
+def electrician_activity_report():
+    electricians = Electrician.query.all()
+    report_data = []
+
+    for e in electricians:
+        assigned_jobs = Job.query.filter_by(electrician_id=e.id).all()
+        assigned_tasks = Task.query.filter_by(electrician_id=e.id).all()
+        completed_tasks = [t for t in assigned_tasks if t.status and t.status.lower() == "completed"]
+
+        report_data.append({
+            "id": e.id,
+            "name": e.name,
+            "phone": e.phone,
+            "status": e.status,
+            "total_jobs": len(assigned_jobs),
+            "total_tasks": len(assigned_tasks),
+            "completed_tasks": len(completed_tasks)
+        })
+
+    return jsonify(report_data), 200
+
+
+@main.route("/api/notifications", methods=["GET"])
+@login_required_api
+def get_notifications():
+    notifications = []
+
+    tasks = Task.query.all()
+    jobs = Job.query.all()
+
+    for t in tasks:
+        if t.status and t.status.lower() == "completed":
+            notifications.append({
+                "type": "task_completed",
+                "message": f"Task '{t.task}' has been completed."
+            })
+
+    for j in jobs:
+        if j.deadline:
+            notifications.append({
+                "type": "deadline_alert",
+                "message": f"Job '{j.title}' has deadline on {j.deadline}."
+            })
+
+    return jsonify(notifications), 200
+
+
+@main.route("/api/tasks/<int:id>/complete", methods=["PATCH"])
+@login_required_api
+def complete_task(id):
+    task = db.session.get(Task, id)
+
+    if not task:
+        return jsonify({"success": False, "message": "Task not found"}), 404
+
+    task.status = "Completed"
+    task.progress = "100%"
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "message": f"Task '{task.task}' marked as completed"
+    }), 200
+
+
+@main.route("/api/tasks/<int:id>/assign", methods=["PATCH"])
+@login_required_api
+def assign_task_notification(id):
+    task = db.session.get(Task, id)
+
+    if not task:
+        return jsonify({"success": False, "message": "Task not found"}), 404
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"success": False, "message": "No data provided"}), 400
+
+    task.electrician_id = data.get("electrician_id", task.electrician_id)
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "message": f"New task assigned successfully for task '{task.task}'"
+    }), 200
