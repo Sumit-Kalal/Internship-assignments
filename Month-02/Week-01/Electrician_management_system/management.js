@@ -417,3 +417,40 @@ async function updateDashboard() {
     element.innerText = data.length;
 }
 updateDashboard();
+
+async function loadNotifications() {
+    try {
+        const res = await fetch("/api/notifications");
+        const data = await res.json();
+
+        const container = document.getElementById("notificationContainer");
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        if (!data.length) {
+            container.innerHTML = "<p>No new notifications</p>";
+            return;
+        }
+
+        data.forEach(notification => {
+            const div = document.createElement("div");
+            div.classList.add("notification");
+
+            if (notification.type === "task") {
+                div.classList.add("task");
+            } else if (notification.type === "complete") {
+                div.classList.add("complete");
+            } else if (notification.type === "deadline") {
+                div.classList.add("deadline");
+            }
+
+            div.textContent = notification.message;
+            container.appendChild(div);
+        });
+    } catch (error) {
+        console.error("Error loading notifications:", error);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadNotifications);

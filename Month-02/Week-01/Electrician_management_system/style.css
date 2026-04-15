@@ -341,3 +341,33 @@ td .btn {
 .card:hover {
     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
+
+#notificationSection {
+    margin: 20px 0;
+}
+
+#notificationContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.notification {
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.notification.task {
+    background-color: #2563eb;
+}
+
+.notification.complete {
+    background-color: #16a34a;
+}
+
+.notification.deadline {
+    background-color: #dc2626;
+}
