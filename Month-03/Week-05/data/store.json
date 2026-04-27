@@ -1,0 +1,137 @@
+{
+  "users": [
+    {
+      "id": "admin1",
+      "email": "admin@gmail.com",
+      "password": "$2b$10$NqvVydlmk5qgTEfhMetK3eaN4wRTKhCWrfJUeAOnutiJZjHu5HI9e",
+      "role": "Admin",
+      "name": "System Admin"
+    },
+    {
+      "id": "elec1",
+      "email": "john@gmail.com",
+      "password": "$2b$10$Xap//P4bV1xdgMTgMjYbWeyaUvGIt10xLyyWMVNC0zZ2UcSR31j.i",
+      "role": "Electrician",
+      "name": "John Doe"
+    }
+  ],
+  "electricians": [
+    {
+      "id": "1",
+      "userId": "elec1",
+      "name": "John Doe",
+      "level": "Master",
+      "status": "Active",
+      "availability": "Available"
+    },
+    {
+      "id": "2",
+      "name": "Jane Smith",
+      "level": "Journeyman",
+      "status": "On Job",
+      "availability": "Busy"
+    },
+    {
+      "name": "Abhishek",
+      "level": "Apprentice",
+      "status": "Active",
+      "availability": "Available",
+      "id": "1777285291798"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "1",
+      "title": "Main Panel Replacement",
+      "location": "123 Oak St",
+      "status": "In Progress",
+      "assignedTo": "1",
+      "deadline": "2026-04-28"
+    },
+    {
+      "id": "2",
+      "title": "Kitchen Rewiring",
+      "location": "456 Maple Ave",
+      "status": "Scheduled",
+      "assignedTo": "2",
+      "deadline": "2026-05-05"
+    },
+    {
+      "title": "Wiring",
+      "location": "banglore",
+      "status": "Scheduled",
+      "assignedTo": "3",
+      "deadline": "2026-04-27",
+      "id": "1777285314674"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1",
+      "jobId": "1",
+      "description": "De-energize main lines",
+      "priority": "High",
+      "completed": true,
+      "hoursWorked": 2,
+      "electricianId": "1",
+      "date": "2026-04-26"
+    },
+    {
+      "id": "2",
+      "jobId": "1",
+      "description": "Install new 200A panel",
+      "priority": "High",
+      "completed": false,
+      "hoursWorked": 4,
+      "electricianId": "1",
+      "date": "2026-04-27"
+    },
+    {
+      "id": "3",
+      "jobId": "2",
+      "description": "Run ROMEX for appliances",
+      "priority": "Medium",
+      "completed": false,
+      "hoursWorked": 0,
+      "electricianId": "2",
+      "date": "2026-04-27"
+    }
+  ],
+  "materials": [
+    {
+      "id": "1",
+      "name": "200A Main Breaker",
+      "quantity": 5,
+      "unit": "pcs"
+    },
+    {
+      "id": "2",
+      "name": "12/2 ROMEX Wire",
+      "quantity": 500,
+      "unit": "ft"
+    },
+    {
+      "name": "Switch boards",
+      "quantity": 50,
+      "unit": "pcs",
+      "id": "1777291968147"
+    }
+  ],
+  "reports": [
+    {
+      "id": "1",
+      "title": "Weekly Progress - April Week 3",
+      "author": "Jane Smith",
+      "date": "2026-04-21",
+      "filePath": null
+    },
+    {
+      "id": "2",
+      "title": "Safety Inspection - Oak St",
+      "author": "John Doe",
+      "date": "2026-04-25",
+      "filePath": null
+    }
+  ],
+  "uploads": []
+}
