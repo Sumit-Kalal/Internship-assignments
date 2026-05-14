@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Management - SetLIT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<script src="management.js" defer ></script>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+            <h1 class="logo">Job Management</h1>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="reports.html">Reports</a></li>
+                <li><a href="Electrician management.html">Electricians</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <button class="btn" onclick="logout()">Logout</button>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="profile-container">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Jobs</h2>
+            <button class="btn primary" onclick="createJob()">+ Create Job</button>
+        </div>
+
+        <div class="table-container"> <!-- The table contains rudamentary data-->
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Job Title</th>
+                        <th>Location</th>
+                        <th>Electrician</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>House Wiring</td>
+                        <td>Bangalore</td>
+                        <td>Raj Kumar</td>
+                        <td>25 Mar 2026</td>
+                        <td><span class="status available">Active</span></td>
+                        <td>
+                            <button class="btn" onclick="editJob(1)">Edit</button>
+                            <button class="btn" style="border-color: red; color: red;" onclick="deleteJob(1)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>Fan Installation</td>
+                        <td>Whitefield</td>
+                        <td>Amit Sharma</td>
+                        <td>22 Mar 2026</td>
+                        <td><span class="status busy">Pending</span></td>
+                        <td>
+                            <button class="btn" onclick="editJob(2)">Edit</button>
+                            <button class="btn" style="border-color: red; color: red;" onclick="deleteJob(2)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>3</td>
+                        <td>Office Maintenance</td>
+                        <td>Indiranagar</td>
+                        <td>Rajesh Nandan</td>
+                        <td>20 Mar 2026</td>
+                        <td><span class="status completed">Completed</span></td>
+                        <td>
+                            <button class="btn" onclick="editJob(3)">Edit</button>
+                            <button class="btn" style="border-color: red; color: red;" onclick="deleteJob(3)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </section>
+
+    <footer>
+        <p>© 2026 SetLIT. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
