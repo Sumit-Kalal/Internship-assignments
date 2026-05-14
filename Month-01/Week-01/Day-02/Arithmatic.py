@@ -1,0 +1,12 @@
+a=float(input("Enter first number: "))
+b=float(input("Enter second number: "))
+sum = a + b
+diff = a - b
+mul = a * b
+div = a / b
+power = a ** b
+print ("addition =",sum)
+print ("subtraction =",diff)
+print ("multiplication =",mul)
+print ("division =",div)
+print ("power =",power) 

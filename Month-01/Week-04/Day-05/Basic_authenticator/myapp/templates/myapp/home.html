@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 50px;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+
+    }
+    label {
+        display: inline-block;
+        width: 100px;
+    }
+    input {
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+    button {
+        padding: 5px 10px;
+        color:lightblue;
+        background-color:blue;
+        border: none;
+    }
+    a {
+        display: block;
+        margin-top: 20px;
+        color:red;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+<body>
+    <h1>Welcome! You are logged in.</h1>
+    <a href="{% url 'login_form' %}">Logout</a>
+    <a href="{% url 'user_list' %}">View Registered Users</a>
+</body>
+</html>
