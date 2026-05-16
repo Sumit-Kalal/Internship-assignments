@@ -42,7 +42,7 @@ async function startServer() {
   });
 
   // Render provides PORT automatically
-  const PORT = process.env.PORT || 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   // Upload directory
   const uploadsDir = path.join(__dirname, 'uploads');
@@ -527,7 +527,7 @@ async function startServer() {
     });
   }
 
-  httpServer.listen(Number(PORT), '0.0.0.0', () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 }
