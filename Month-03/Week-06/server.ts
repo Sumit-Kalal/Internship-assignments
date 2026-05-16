@@ -141,26 +141,6 @@ async function startServer() {
   app.use(express.json());
   app.use('/uploads', express.static(uploadsDir));
 
-  // Multer config
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadsDir),
-    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
-  });
-  const upload = multer({ 
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-    fileFilter: (req, file, cb) => {
-      const allowed = ['image/png', 'image/jpeg', 'application/pdf'];
-      if (allowed.includes(file.mimetype)) cb(null, true);
-      else cb(new Error('Invalid file type'));
-    }
-  });
-
-  // Helper to notify
-  const notify = (msg: string) => {
-    io.emit('notification', { id: Date.now(), message: msg, timestamp: new Date() });
-  };
-
   // Middlewares for API
   app.use('/api/auth', authRoutes);
   app.use('/api/dashboard', dashboardRoutes);
