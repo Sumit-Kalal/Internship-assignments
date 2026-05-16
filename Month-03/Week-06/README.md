@@ -129,6 +129,35 @@ VoltManager uses Razorpay for transactions. To enable live payments:
 - Build optimized assets using `npm run build`.
 - Serve static files from the `dist` directory.
 
+## Render Deployment (Web Service)
+
+Use a single Render Web Service from the `Month-03/Week-06` root.
+
+- Build Command: `npm install && npm run build`
+- Start Command: `npm start`
+- Node Version: `18+` (recommended `20`)
+- Environment: set `NODE_ENV=production`
+
+Required environment variables:
+
+- `JWT_SECRET`
+- `FIREBASE_APPLET_CONFIG_JSON` (preferred, full JSON string)
+
+Alternative to `FIREBASE_APPLET_CONFIG_JSON`:
+
+- `FIREBASE_API_KEY`
+- `FIREBASE_AUTH_DOMAIN`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_STORAGE_BUCKET`
+- `FIREBASE_MESSAGING_SENDER_ID`
+- `FIREBASE_APP_ID`
+- `FIREBASE_FIRESTORE_DATABASE_ID` (optional, defaults to `(default)`)
+
+Notes:
+
+- Render injects `PORT` automatically; the server now binds to it.
+- Uploads are saved to local disk. On Render this storage is ephemeral unless you attach persistent disk or external object storage.
+
 ## 🔐 Security & Access
 - **JWT Authentication**: All API endpoints protected by token validation.
 - **Password Hashing**: Bcrypt with salt rounds for secure storage.

@@ -1,6 +1,7 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -32,14 +33,18 @@ async function startServer() {
   const io = new Server(httpServer, {
     cors: { origin: "*" }
   });
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
+  const uploadsDir = path.join(__dirname, 'uploads');
+
+  // Ensure upload directory exists across fresh deploys.
+  fs.mkdirSync(uploadsDir, { recursive: true });
 
   app.use(express.json());
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+  app.use('/uploads', express.static(uploadsDir));
 
   // Multer config
   const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
+    destination: (req, file, cb) => cb(null, uploadsDir),
     filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
   });
   const upload = multer({ 
