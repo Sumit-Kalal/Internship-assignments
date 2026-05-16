@@ -27,14 +27,113 @@ import { sendSuccess, sendError } from './src/utils/response.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// That bottom section is already correct and should remain unchanged.
+
 async function startServer() {
+  // Create Express application
   const app = express();
+
+  // Create HTTP server (required for Socket.IO)
   const httpServer = createServer(app);
+
+  // Initialize Socket.IO
   const io = new Server(httpServer, {
     cors: { origin: "*" }
   });
-  const PORT = Number(process.env.PORT) || 3000;
+
+  // Render provides PORT automatically
+  const PORT = process.env.PORT || 3000;
+
+  // Upload directory
   const uploadsDir = path.join(__dirname, 'uploads');
+
+  // Ensure upload directory exists on fresh deployments
+  fs.mkdirSync(uploadsDir, { recursive: true });
+
+  // Global middleware
+  app.use(express.json());
+  app.use('/uploads', express.static(uploadsDir));
+
+  // Multer configuration
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadsDir),
+    filename: (req, file, cb) =>
+      cb(null, Date.now() + '-' + file.originalname)
+  });
+
+  const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+    fileFilter: (req, file, cb) => {
+      const allowed = [
+        'image/png',
+        'image/jpeg',
+        'application/pdf'
+      ];
+
+      if (allowed.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Invalid file type'));
+      }
+    }
+  });
+
+  // Socket.IO notification helper
+  const notify = (msg: string) => {
+    io.emit('notification', {
+      id: Date.now(),
+      message: msg,
+      timestamp: new Date()
+    });
+  };
+
+  // Base API route modules
+  app.use('/api/auth', authRoutes);
+  app.use('/api/dashboard', dashboardRoutes);
+  app.use('/api/payments', paymentRoutes);
+
+  // Upload Routes
+  app.post(
+    '/api/upload/report',
+    authenticateToken,
+    authorizeRole(['Admin']),
+    upload.single('report'),
+    (req: any, res: any) => {
+      if (!req.file) return sendError(res, 'No file uploaded');
+
+      const fileData = {
+        id: req.file.filename,
+        name: req.file.originalname,
+        path: `/uploads/${req.file.filename}`,
+        type: 'report',
+        timestamp: new Date().toISOString()
+      };
+
+      notify(`New report uploaded: ${req.file.originalname}`);
+      sendSuccess(res, 'Report uploaded', fileData);
+    }
+  );
+
+  app.post(
+    '/api/upload/image',
+    authenticateToken,
+    upload.single('image'),
+    (req: any, res: any) => {
+      if (!req.file) return sendError(res, 'No file uploaded');
+
+      const fileData = {
+        id: req.file.filename,
+        name: req.file.originalname,
+        path: `/uploads/${req.file.filename}`,
+        type: 'image',
+        timestamp: new Date().toISOString()
+      };
+
+      notify(`Media uploaded: ${req.file.originalname}`);
+      sendSuccess(res, 'Image uploaded', fileData);
+    }
+  );
 
   // Ensure upload directory exists across fresh deploys.
   fs.mkdirSync(uploadsDir, { recursive: true });
