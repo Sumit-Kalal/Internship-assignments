@@ -527,9 +527,9 @@ async function startServer() {
     });
   }
 
-  httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  httpServer.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
 }
 
 startServer();
