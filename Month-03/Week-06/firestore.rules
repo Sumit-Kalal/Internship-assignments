@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if true;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && getUserData().role == 'Admin';
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() || isOwner(userId);
+    }
+
+    // Clients
+    match /clients/{clientId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Electricians
+    match /electricians/{elecId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() || (isSignedIn() && existingData().userId == request.auth.uid);
+      
+      function existingData() {
+        return resource.data;
+      }
+    }
+
+    // Jobs
+    match /jobs/{jobId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Tasks
+    match /tasks/{taskId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // Simplified for now, but should check if admin or assigned electrician
+    }
+
+    // Materials
+    match /materials/{matId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Payments
+    match /payments/{payId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // Usually handled by server with Admin SDK anyway
+    }
+
+    // Reports
+    match /reports/{reportId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user with authentication details and roles",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "enum": ["Admin", "Client", "Electrician"] },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "name", "role", "created_at"]
+    },
+    "Client": {
+      "title": "Client",
+      "description": "Enterprise client requesting electrical jobs",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" }
+      },
+      "required": ["userId", "name"]
+    },
+    "Electrician": {
+      "title": "Electrician",
+      "description": "Contractor assigned to electrical tasks",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "availability": { "type": "string", "enum": ["Available", "Busy", "On Leave"] },
+        "skillset": { "type": "string" },
+        "tasksCompleted": { "type": "number" },
+        "rating": { "type": "number" }
+      },
+      "required": ["userId", "name", "availability"]
+    },
+    "Job": {
+      "title": "Job",
+      "description": "An electrical project or maintenance job",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "location": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "In Progress", "Completed", "Paid"] },
+        "clientId": { "type": "string" },
+        "assignedTo": { "type": "string" },
+        "amount": { "type": "number" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "location", "status", "clientId", "created_at"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Specific task within a Job",
+      "type": "object",
+      "properties": {
+        "jobId": { "type": "string" },
+        "description": { "type": "string" },
+        "priority": { "type": "string", "enum": ["Low", "Normal", "High"] },
+        "completed": { "type": "boolean" },
+        "electricianId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "hoursWorked": { "type": "number" }
+      },
+      "required": ["jobId", "description", "priority", "completed"]
+    },
+    "Material": {
+      "title": "Material",
+      "description": "Inventory material for jobs",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "stock": { "type": "number" },
+        "unit": { "type": "string" },
+        "price": { "type": "number" }
+      },
+      "required": ["name", "stock", "price"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Financial transaction record",
+      "type": "object",
+      "properties": {
+        "job_id": { "type": "string" },
+        "amount": { "type": "number" },
+        "method": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "success", "failed"] },
+        "payment_type": { "type": "string" },
+        "payer_id": { "type": "string" },
+        "receiver_id": { "type": "string" },
+        "gateway_payment_id": { "type": "string" },
+        "payer_name": { "type": "string" },
+        "payer_phone": { "type": "string" },
+        "transaction_note": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["job_id", "amount", "method", "status", "payment_type", "created_at"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "Enterprise report document",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "type": { "type": "string" },
+        "date": { "type": "string" },
+        "author": { "type": "string" },
+        "details": { "type": "string" },
+        "jobId": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "type", "date"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "User", "description": "Collection of system users" },
+    "clients": { "schema": "Client", "description": "Collection of clients" },
+    "electricians": { "schema": "Electrician", "description": "Collection of electricians" },
+    "jobs": { "schema": "Job", "description": "Collection of jobs" },
+    "tasks": { "schema": "Task", "description": "Collection of job tasks" },
+    "materials": { "schema": "Material", "description": "Collection of inventory materials" },
+    "payments": { "schema": "Payment", "description": "Collection of transactions" },
+    "reports": { "schema": "Report", "description": "Collection of system reports" }
+  }
+}
