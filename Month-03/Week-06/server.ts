@@ -140,7 +140,7 @@ app.post('/api/clients', authenticateToken, authorizeRole(['Admin']), async (req
 });
 
 /* -------------------- GENERIC CRUD ROUTES -------------------- */
-const genericCollections = ['jobs', 'materials', 'tasks', 'electricians', 'reports'];
+const genericCollections = ['jobs', 'materials', 'tasks', 'electricians', 'reports', 'clients'];
 
 genericCollections.forEach((collectionName) => {
   // GET all documents in collection
