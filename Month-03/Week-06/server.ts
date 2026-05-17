@@ -139,6 +139,68 @@ app.post('/api/clients', authenticateToken, authorizeRole(['Admin']), async (req
   }
 });
 
+/* -------------------- GENERIC CRUD ROUTES -------------------- */
+const genericCollections = ['jobs', 'materials', 'tasks', 'electricians', 'reports'];
+
+genericCollections.forEach((collectionName) => {
+  // GET all documents in collection
+  app.get(`/api/${collectionName}`, authenticateToken, async (_req, res) => {
+    try {
+      const snap = await getDocs(collection(db, collectionName));
+      sendSuccess(res, `${collectionName} fetched`, snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch {
+      sendError(res, `Failed to fetch ${collectionName}`);
+    }
+  });
+
+  // GET single document by ID
+  app.get(`/api/${collectionName}/:id`, authenticateToken, async (req: any, res) => {
+    try {
+      const docSnap = await getDoc(doc(db, collectionName, req.params.id));
+      if (docSnap.exists()) {
+        sendSuccess(res, `${collectionName} fetched`, { id: docSnap.id, ...docSnap.data() });
+      } else {
+        sendError(res, `${collectionName} not found`, 404);
+      }
+    } catch {
+      sendError(res, `Failed to fetch ${collectionName}`);
+    }
+  });
+
+  // POST create new document
+  app.post(`/api/${collectionName}`, authenticateToken, async (req: any, res) => {
+    try {
+      const ref = await addDoc(collection(db, collectionName), req.body);
+      notify(`New ${collectionName.slice(0, -1)} added`);
+      sendSuccess(res, `${collectionName.slice(0, -1)} created`, { id: ref.id, ...req.body }, 201);
+    } catch {
+      sendError(res, `Failed to create ${collectionName.slice(0, -1)}`);
+    }
+  });
+
+  // PUT update document
+  app.put(`/api/${collectionName}/:id`, authenticateToken, async (req: any, res) => {
+    try {
+      await updateDoc(doc(db, collectionName, req.params.id), req.body);
+      notify(`${collectionName.slice(0, -1)} updated`);
+      sendSuccess(res, `${collectionName.slice(0, -1)} updated`, { id: req.params.id, ...req.body });
+    } catch {
+      sendError(res, `Failed to update ${collectionName.slice(0, -1)}`);
+    }
+  });
+
+  // DELETE document
+  app.delete(`/api/${collectionName}/:id`, authenticateToken, async (req: any, res) => {
+    try {
+      await deleteDoc(doc(db, collectionName, req.params.id));
+      notify(`${collectionName.slice(0, -1)} deleted`);
+      sendSuccess(res, `${collectionName.slice(0, -1)} deleted`);
+    } catch {
+      sendError(res, `Failed to delete ${collectionName.slice(0, -1)}`);
+    }
+  });
+});
+
 /* -------------------- ERROR HANDLER -------------------- */
 app.use((err: any, _req: any, res: any, _next: any) => {
   console.error(err);
