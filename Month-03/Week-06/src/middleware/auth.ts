@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 
 export interface AuthRequest extends Request {
+  headers: any;
   user?: {
     id: string;
     role: string;
