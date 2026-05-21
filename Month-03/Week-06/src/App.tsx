@@ -33,7 +33,8 @@ import {
   DollarSign,
   Smartphone,
   Wallet,
-  Building2
+  Building2,
+  Menu
 } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'motion/react';
 import { io, Socket } from 'socket.io-client';
@@ -273,6 +274,7 @@ const safeFormat = (dateStr: any, formatStr: string) => {
 export default function App() {
   const [user, setUser] = useState<any>(JSON.parse(localStorage.getItem('user') || 'null'));
   const [activeView, setActiveView] = useState<View>('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -307,6 +309,33 @@ export default function App() {
   });
 
   const socketRef = useRef<Socket | null>(null);
+
+  // Validate token on app startup
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return; // No token, skip validation
+
+      try {
+        const res = await fetch('/api/auth/validate', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).then(handleResponse);
+
+        if (!res.success) {
+          // Token is invalid or expired
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setUser(null);
+          toast.error('Session expired. Please login again.');
+        }
+      } catch (err) {
+        // Network error or other issue, but don't log out the user
+        console.warn('Token validation failed:', err);
+      }
+    };
+
+    validateToken();
+  }, []);
 
   const fetchData = async () => {
     if (!user) return;
@@ -547,10 +576,17 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
+    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden relative">
       <Toaster position="top-right" />
+      {/* Sidebar Backdrop (mobile only) */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 md:hidden z-40"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
       {/* Sidebar ... */}
-      <aside className="w-64 bg-slate-900 flex flex-col shadow-2xl">
+      <aside className="w-64 bg-slate-900 flex flex-col shadow-2xl fixed md:relative inset-0 md:inset-auto z-50 md:z-auto transform transition-transform md:transform-none" style={{transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)', WebkitTransform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)'}}>
         <div className="p-6">
           <div className="flex items-center gap-3 text-blue-400 font-bold text-xl tracking-tight">
             <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white text-xs shadow-lg shadow-blue-500/30">
@@ -565,7 +601,7 @@ export default function App() {
             icon={LayoutDashboard} 
             label="Dashboard" 
             active={activeView === 'dashboard'} 
-            onClick={() => setActiveView('dashboard')} 
+            onClick={() => { setActiveView('dashboard'); setIsSidebarOpen(false); }} 
           />
           {isAdmin && (
             <>
@@ -574,7 +610,7 @@ export default function App() {
                 icon={Users} 
                 label="Electricians" 
                 active={activeView === 'electricians'} 
-                onClick={() => setActiveView('electricians')} 
+                onClick={() => { setActiveView('electricians'); setIsSidebarOpen(false); }} 
               />
             </>
           )}
@@ -583,13 +619,13 @@ export default function App() {
             icon={Briefcase} 
             label="Jobs" 
             active={activeView === 'jobs'} 
-            onClick={() => setActiveView('jobs')} 
+            onClick={() => { setActiveView('jobs'); setIsSidebarOpen(false); }} 
           />
           <SidebarItem 
             icon={CheckSquare} 
             label="Tasks" 
             active={activeView === 'tasks'} 
-            onClick={() => setActiveView('tasks')} 
+            onClick={() => { setActiveView('tasks'); setIsSidebarOpen(false); }} 
           />
           <div className="px-4 py-2 mt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-50">Finance</div>
           {isAdmin && (
@@ -597,27 +633,27 @@ export default function App() {
               icon={Users} 
               label="Clients" 
               active={activeView === 'clients'} 
-              onClick={() => setActiveView('clients')} 
+              onClick={() => { setActiveView('clients'); setIsSidebarOpen(false); }} 
             />
           )}
           <SidebarItem 
             icon={CreditCard} 
             label="Payments" 
             active={activeView === 'payments'} 
-            onClick={() => setActiveView('payments')} 
+            onClick={() => { setActiveView('payments'); setIsSidebarOpen(false); }} 
           />
           <div className="px-4 py-2 mt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-50">Resources</div>
           <SidebarItem 
             icon={Package} 
             label="Materials" 
             active={activeView === 'materials'} 
-            onClick={() => setActiveView('materials')} 
+            onClick={() => { setActiveView('materials'); setIsSidebarOpen(false); }} 
           />
           <SidebarItem 
             icon={FileText} 
             label="Reports" 
             active={activeView === 'reports'} 
-            onClick={() => setActiveView('reports')} 
+            onClick={() => { setActiveView('reports'); setIsSidebarOpen(false); }} 
           />
         </nav>
 
@@ -640,10 +676,16 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto flex flex-col">
+      <main className="flex-1 overflow-auto flex flex-col w-full md:w-auto">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10 shadow-sm shadow-slate-100">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-10 shadow-sm shadow-slate-100">
           <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
              <h1 className="text-lg font-bold text-slate-800 capitalize tracking-tight">
               {activeView === 'dashboard' ? 'Operations Overview' : activeView}
             </h1>
@@ -1348,14 +1390,14 @@ function StatCard({ label, value, change, color = 'text-slate-400', icon: Icon, 
 function ElectriciansView({ items, onEdit, onDelete, filter, setFilter, isAdmin }: { items: Electrician[]; onEdit: (item: any) => void; onDelete: (id: string, mod: string) => void; filter: string; setFilter: (f: string) => void; isAdmin: boolean }) {
   return (
     <div className="space-y-4 flex flex-col h-full">
-      <div className="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200">
-        <Filter className="w-4 h-4 text-slate-400 ml-2" />
+      <div className="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200 overflow-x-auto">
+        <Filter className="w-4 h-4 text-slate-400 ml-2 flex-shrink-0" />
         {['All', 'Available', 'Busy'].map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={cn(
-              "px-3 py-1 text-[10px] font-bold uppercase rounded-md transition-all",
+              "px-3 py-1 text-[10px] font-bold uppercase rounded-md transition-all flex-shrink-0",
               filter === f ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:bg-slate-100"
             )}
           >
@@ -1363,76 +1405,149 @@ function ElectriciansView({ items, onEdit, onDelete, filter, setFilter, isAdmin 
           </button>
         ))}
       </div>
-      <DataTable 
-        headers={['Name', 'Level', 'Status', 'Availability', 'Actions']}
-        items={items}
-        renderRow={(item) => (
-          <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
-            <td className="py-4 px-6 text-sm font-medium text-slate-900">{item.name}</td>
-            <td className="py-4 px-6 text-sm text-slate-600 font-mono italic">{item.level}</td>
-            <td className="py-4 px-6">
-              <span className={cn(
-                "px-2 py-1 text-[11px] font-bold rounded-md uppercase",
-                item.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'
-              )}>
-                {item.status}
-              </span>
-            </td>
-            <td className="py-4 px-6">
-               <span className={cn(
-                "px-2 py-1 text-[11px] font-bold rounded-md uppercase",
-                item.availability === 'Available' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
-              )}>
-                {item.availability}
-              </span>
-            </td>
-            <td className="py-4 px-6 text-right">
-              {isAdmin && (
-                <div className="flex justify-end">
-                  <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'electricians')} />
+      
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <DataTable 
+          headers={['Name', 'Level', 'Status', 'Availability', 'Actions']}
+          items={items}
+          renderRow={(item) => (
+            <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
+              <td className="py-4 px-6 text-sm font-medium text-slate-900">{item.name}</td>
+              <td className="py-4 px-6 text-sm text-slate-600 font-mono italic">{item.level}</td>
+              <td className="py-4 px-6">
+                <span className={cn(
+                  "px-2 py-1 text-[11px] font-bold rounded-md uppercase",
+                  item.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'
+                )}>
+                  {item.status}
+                </span>
+              </td>
+              <td className="py-4 px-6">
+                 <span className={cn(
+                  "px-2 py-1 text-[11px] font-bold rounded-md uppercase",
+                  item.availability === 'Available' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
+                )}>
+                  {item.availability}
+                </span>
+              </td>
+              <td className="py-4 px-6 text-right">
+                {isAdmin && (
+                  <div className="flex justify-end">
+                    <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'electricians')} />
+                  </div>
+                )}
+              </td>
+            </tr>
+          )}
+        />
+      </div>
+      
+      {/* Mobile Cards */}
+      <div className="md:hidden">
+        <CardGrid
+          items={items}
+          renderCard={(item) => (
+            <ItemCard>
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="font-bold text-slate-900">{item.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1 font-mono italic">{item.level}</p>
                 </div>
-              )}
-            </td>
-          </tr>
-        )}
-      />
+                {isAdmin && <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'electricians')} />}
+              </div>
+              <div className="flex gap-2 pt-2 border-t border-slate-100">
+                <span className={cn(
+                  "px-2 py-1 text-[10px] font-bold rounded-md uppercase",
+                  item.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'
+                )}>
+                  {item.status}
+                </span>
+                <span className={cn(
+                  "px-2 py-1 text-[10px] font-bold rounded-md uppercase",
+                  item.availability === 'Available' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'
+                )}>
+                  {item.availability}
+                </span>
+              </div>
+            </ItemCard>
+          )}
+        />
+      </div>
     </div>
   );
 }
 
 function JobsView({ items, onEdit, onDelete, electricians, isAdmin }: { items: Job[]; onEdit: (item: any) => void; onDelete: (id: string, mod: string) => void; electricians: Electrician[]; isAdmin: boolean }) {
   return (
-    <DataTable 
-      headers={['Title', 'Location', 'Status', 'Assigned To', 'Actions']}
-      items={items}
-      renderRow={(item) => {
-        const elec = electricians.find(e => e.id === item.assignedTo);
-        return (
-          <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
-            <td className="px-6 py-4 text-sm font-bold text-slate-900">{item.title}</td>
-            <td className="px-6 py-4 text-sm text-slate-600 font-medium">{item.location}</td>
-            <td className="px-6 py-4">
-               <span className={cn(
-                 "px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-widest",
-                 item.status === 'Completed' ? 'bg-blue-100 text-blue-700' : 
-                 item.status === 'Paid' ? 'bg-green-100 text-green-700' :
-                 item.status === 'In Progress' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'
-               )}>
-                {item.status}
-              </span>
-            </td>
-            <td className="px-6 py-4 text-sm text-slate-500 italic font-medium">{elec ? elec.name : 'Unassigned'}</td>
-            <td className="px-6 py-4 text-right">
-              {isAdmin && (
-                <div className="flex justify-end">
-                  <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'jobs')} />
+    <>
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <DataTable 
+          headers={['Title', 'Location', 'Status', 'Assigned To', 'Actions']}
+          items={items}
+          renderRow={(item) => {
+            const elec = electricians.find(e => e.id === item.assignedTo);
+            return (
+              <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
+                <td className="px-6 py-4 text-sm font-bold text-slate-900">{item.title}</td>
+                <td className="px-6 py-4 text-sm text-slate-600 font-medium">{item.location}</td>
+                <td className="px-6 py-4">
+                   <span className={cn(
+                     "px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-widest",
+                     item.status === 'Completed' ? 'bg-blue-100 text-blue-700' : 
+                     item.status === 'Paid' ? 'bg-green-100 text-green-700' :
+                     item.status === 'In Progress' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'
+                   )}>
+                    {item.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-sm text-slate-500 italic font-medium">{elec ? elec.name : 'Unassigned'}</td>
+                <td className="px-6 py-4 text-right">
+                  {isAdmin && (
+                    <div className="flex justify-end">
+                      <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'jobs')} />
+                    </div>
+                  )}
+                </td>
+              </tr>
+            );
+          }}
+        />
+      </div>
+      
+      {/* Mobile Cards */}
+      <div className="md:hidden">
+        <CardGrid
+          items={items}
+          renderCard={(item) => {
+            const elec = electricians.find(e => e.id === item.assignedTo);
+            return (
+              <ItemCard>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-slate-900">{item.title}</h3>
+                    <p className="text-xs text-slate-500 mt-1">{item.location}</p>
+                  </div>
+                  {isAdmin && <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'jobs')} />}
                 </div>
-              )}
-            </td>
-          </tr>
-        );
-      }}
-    />
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <span className={cn(
+                    "px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-widest",
+                    item.status === 'Completed' ? 'bg-blue-100 text-blue-700' : 
+                    item.status === 'Paid' ? 'bg-green-100 text-green-700' :
+                    item.status === 'In Progress' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'
+                  )}>
+                    {item.status}
+                  </span>
+                  <span className="text-xs text-slate-500 italic">{elec ? elec.name : 'Unassigned'}</span>
+                </div>
+              </ItemCard>
+            );
+          }}
+        />
+      </div>
+    </>
   );
 }
 
@@ -1462,14 +1577,14 @@ function TasksView({ items, data, onEdit, onDelete, filter, setFilter, isAdmin, 
 
   return (
     <div className="space-y-4 flex flex-col h-full">
-      <div className="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200">
-        <Filter className="w-4 h-4 text-slate-400 ml-2" />
+      <div className="flex items-center gap-2 bg-white p-3 rounded-xl border border-slate-200 overflow-x-auto">
+        <Filter className="w-4 h-4 text-slate-400 ml-2 flex-shrink-0" />
         {['All', 'Pending', 'Completed'].map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={cn(
-              "px-3 py-1 text-[10px] font-bold uppercase rounded-md transition-all",
+              "px-3 py-1 text-[10px] font-bold uppercase rounded-md transition-all flex-shrink-0",
               filter === f ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:bg-slate-100"
             )}
           >
@@ -1477,47 +1592,91 @@ function TasksView({ items, data, onEdit, onDelete, filter, setFilter, isAdmin, 
           </button>
         ))}
       </div>
-      <DataTable 
-        headers={['Description', 'Priority', 'Job', 'Assignee', 'Status', 'Actions']}
-        items={items}
-        renderRow={(item) => {
-          const job = data.jobs.find((j:any) => j.id === item.jobId);
-          const elec = data.electricians.find((e:any) => e.id === item.electricianId);
-          return (
-            <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
-              <td className="px-6 py-4 text-sm text-slate-900 font-medium">{item.description}</td>
-              <td className="px-6 py-4">
-                <span className={cn(
-                  "text-[10px] font-bold uppercase px-2 py-0.5 rounded",
-                  item.priority === 'High' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'
-                )}>
-                  {item.priority}
-                </span>
-              </td>
-              <td className="px-6 py-4 text-[11px] text-slate-500 font-bold uppercase tracking-tighter truncate max-w-[150px]">{job ? job.title : 'No Job'}</td>
-              <td className="px-6 py-4 text-[11px] font-bold text-slate-600">{elec ? elec.name : 'Unassigned'}</td>
-              <td className="px-6 py-4">
-                 <button 
-                  onClick={() => toggleStatus(item)}
-                  className={cn(
-                    "px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-widest transition-all",
-                    item.completed ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400 hover:bg-blue-50 hover:text-blue-600'
+      
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <DataTable 
+          headers={['Description', 'Priority', 'Job', 'Assignee', 'Status', 'Actions']}
+          items={items}
+          renderRow={(item) => {
+            const job = data.jobs.find((j:any) => j.id === item.jobId);
+            const elec = data.electricians.find((e:any) => e.id === item.electricianId);
+            return (
+              <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
+                <td className="px-6 py-4 text-sm text-slate-900 font-medium">{item.description}</td>
+                <td className="px-6 py-4">
+                  <span className={cn(
+                    "text-[10px] font-bold uppercase px-2 py-0.5 rounded",
+                    item.priority === 'High' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'
+                  )}>
+                    {item.priority}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-[11px] text-slate-500 font-bold uppercase tracking-tighter truncate max-w-[150px]">{job ? job.title : 'No Job'}</td>
+                <td className="px-6 py-4 text-[11px] font-bold text-slate-600">{elec ? elec.name : 'Unassigned'}</td>
+                <td className="px-6 py-4">
+                   <button 
+                    onClick={() => toggleStatus(item)}
+                    className={cn(
+                      "px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-widest transition-all",
+                      item.completed ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400 hover:bg-blue-50 hover:text-blue-600'
+                    )}
+                   >
+                    {item.completed ? 'Completed' : 'Mark Done'}
+                  </button>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  {isAdmin && (
+                    <div className="flex justify-end">
+                      <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'tasks')} />
+                    </div>
                   )}
-                 >
-                  {item.completed ? 'Completed' : 'Mark Done'}
-                </button>
-              </td>
-              <td className="px-6 py-4 text-right">
-                {isAdmin && (
-                  <div className="flex justify-end">
-                    <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'tasks')} />
+                </td>
+              </tr>
+            );
+          }}
+        />
+      </div>
+      
+      {/* Mobile Cards */}
+      <div className="md:hidden">
+        <CardGrid
+          items={items}
+          renderCard={(item) => {
+            const job = data.jobs.find((j:any) => j.id === item.jobId);
+            const elec = data.electricians.find((e:any) => e.id === item.electricianId);
+            return (
+              <ItemCard>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-slate-900 text-sm">{item.description}</h3>
+                    <p className="text-xs text-slate-500 mt-1">{job ? job.title : 'No Job'}</p>
                   </div>
-                )}
-              </td>
-            </tr>
-          );
-        }}
-      />
+                  {isAdmin && <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'tasks')} />}
+                </div>
+                <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                  <span className={cn(
+                    "text-[10px] font-bold uppercase px-2 py-0.5 rounded",
+                    item.priority === 'High' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'
+                  )}>
+                    {item.priority}
+                  </span>
+                  <span className="text-xs text-slate-500 italic flex-1">{elec ? elec.name : 'Unassigned'}</span>
+                  <button 
+                    onClick={() => toggleStatus(item)}
+                    className={cn(
+                      "px-2 py-1 text-[10px] font-bold rounded-md uppercase tracking-widest transition-all flex-shrink-0",
+                      item.completed ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'
+                    )}
+                   >
+                    {item.completed ? '✓' : '○'}
+                  </button>
+                </div>
+              </ItemCard>
+            );
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -1901,54 +2060,111 @@ function ReportsView({ data, onDelete, isAdmin }: { data: any; onDelete: (id: st
 
 function MaterialsView({ items, onEdit, onDelete, isAdmin }: { items: Material[]; onEdit: (item: any) => void; onDelete: (id: string, mod: string) => void; isAdmin: boolean }) {
   return (
-    <DataTable 
-      headers={['Item Name', 'Quantity', 'Unit', 'Status', 'Actions']}
-      items={items}
-      renderRow={(item) => (
-        <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
-          <td className="px-6 py-4 text-sm font-medium text-slate-900">{item.name}</td>
-          <td className="px-6 py-4 text-sm text-slate-600 font-mono">{item.quantity}</td>
-          <td className="px-6 py-4 text-sm text-slate-500 uppercase">{item.unit}</td>
-          <td className="px-6 py-4">
-             <span className={`px-2 py-1 text-[11px] font-bold rounded-md uppercase ${
-              item.quantity < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-            }`}>
-              {item.quantity < 10 ? 'Low Stock' : 'In Stock'}
-            </span>
-          </td>
-          <td className="px-6 py-4 text-right">
-            {isAdmin && (
-              <div className="flex justify-end">
-                <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'materials')} />
+    <>
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <DataTable 
+          headers={['Item Name', 'Quantity', 'Unit', 'Status', 'Actions']}
+          items={items}
+          renderRow={(item) => (
+            <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
+              <td className="px-6 py-4 text-sm font-medium text-slate-900">{item.name}</td>
+              <td className="px-6 py-4 text-sm text-slate-600 font-mono">{item.quantity}</td>
+              <td className="px-6 py-4 text-sm text-slate-500 uppercase">{item.unit}</td>
+              <td className="px-6 py-4">
+                 <span className={`px-2 py-1 text-[11px] font-bold rounded-md uppercase ${
+                  item.quantity < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                }`}>
+                  {item.quantity < 10 ? 'Low Stock' : 'In Stock'}
+                </span>
+              </td>
+              <td className="px-6 py-4 text-right">
+                {isAdmin && (
+                  <div className="flex justify-end">
+                    <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'materials')} />
+                  </div>
+                )}
+              </td>
+            </tr>
+          )}
+        />
+      </div>
+      
+      {/* Mobile Cards */}
+      <div className="md:hidden">
+        <CardGrid
+          items={items}
+          renderCard={(item) => (
+            <ItemCard>
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="font-bold text-slate-900">{item.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1 uppercase">{item.unit}</p>
+                </div>
+                {isAdmin && <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'materials')} />}
               </div>
-            )}
-          </td>
-        </tr>
-      )}
-    />
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <span className="font-mono text-sm font-bold text-slate-900">{item.quantity}</span>
+                <span className={`px-2 py-1 text-[10px] font-bold rounded-md uppercase ${
+                  item.quantity < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                }`}>
+                  {item.quantity < 10 ? 'Low' : 'OK'}
+                </span>
+              </div>
+            </ItemCard>
+          )}
+        />
+      </div>
+    </>
   );
 }
 
 function ClientsView({ items, onEdit, onDelete, isAdmin }: { items: Client[]; onEdit: (item: any) => void; onDelete: (id: string, mod: string) => void; isAdmin: boolean }) {
   return (
-    <DataTable 
-      headers={['Name', 'Company', 'Phone', 'Actions']}
-      items={items}
-      renderRow={(item) => (
-        <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
-          <td className="px-6 py-4 text-sm font-medium text-slate-900">{item.name}</td>
-          <td className="px-6 py-4 text-sm text-slate-600">{item.company}</td>
-          <td className="px-6 py-4 text-sm text-slate-500 font-mono tracking-tighter">{item.phone}</td>
-          <td className="px-6 py-4 text-right">
-            {isAdmin && (
-              <div className="flex justify-end">
-                <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'clients')} />
+    <>
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <DataTable 
+          headers={['Name', 'Company', 'Phone', 'Actions']}
+          items={items}
+          renderRow={(item) => (
+            <tr key={item.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors group">
+              <td className="px-6 py-4 text-sm font-medium text-slate-900">{item.name}</td>
+              <td className="px-6 py-4 text-sm text-slate-600">{item.company}</td>
+              <td className="px-6 py-4 text-sm text-slate-500 font-mono tracking-tighter">{item.phone}</td>
+              <td className="px-6 py-4 text-right">
+                {isAdmin && (
+                  <div className="flex justify-end">
+                    <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'clients')} />
+                  </div>
+                )}
+              </td>
+            </tr>
+          )}
+        />
+      </div>
+      
+      {/* Mobile Cards */}
+      <div className="md:hidden">
+        <CardGrid
+          items={items}
+          renderCard={(item) => (
+            <ItemCard>
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="font-bold text-slate-900">{item.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1">{item.company}</p>
+                </div>
+                {isAdmin && <TableActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id, 'clients')} />}
               </div>
-            )}
-          </td>
-        </tr>
-      )}
-    />
+              <div className="pt-2 border-t border-slate-100">
+                <p className="text-xs text-slate-600 font-mono tracking-tighter">{item.phone}</p>
+              </div>
+            </ItemCard>
+          )}
+        />
+      </div>
+    </>
   );
 }
 
@@ -2509,6 +2725,27 @@ function DataTable({ headers, items, renderRow }: { headers: string[]; items: an
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+// Mobile Card View Components
+function ItemCard({ children }: { children: ReactNode }) {
+  return (
+    <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-3">
+      {children}
+    </div>
+  );
+}
+
+function CardGrid({ items, renderCard }: { items: any[]; renderCard: (item: any, idx: number) => ReactNode }) {
+  return (
+    <div className="space-y-3">
+      {items.map((item, idx) => (
+        <div key={item.id}>
+          {renderCard(item, idx)}
+        </div>
+      ))}
     </div>
   );
 }

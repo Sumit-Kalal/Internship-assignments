@@ -118,4 +118,20 @@ router.post('/register', [
   }
 });
 
+router.get('/validate', async (req: any, res: any) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return sendError(res, 'No token provided', 401);
+  }
+
+  try {
+    jwt.verify(token, JWT_SECRET);
+    sendSuccess(res, 'Token is valid', { valid: true });
+  } catch (error) {
+    sendError(res, 'Invalid or expired token', 403);
+  }
+});
+
 export default router;
