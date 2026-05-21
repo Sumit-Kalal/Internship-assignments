@@ -586,7 +586,13 @@ export default function App() {
         />
       )}
       {/* Sidebar ... */}
-      <aside className="w-64 bg-slate-900 flex flex-col shadow-2xl fixed md:relative inset-0 md:inset-auto z-50 md:z-auto transform transition-transform md:transform-none" style={{transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)', WebkitTransform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)'}}>
+      <aside className={cn(
+        "w-64 bg-slate-900 flex flex-col shadow-2xl",
+        "fixed md:static inset-0 md:inset-auto",
+        "z-50 md:z-auto",
+        "transition-transform duration-300",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      )}>
         <div className="p-6">
           <div className="flex items-center gap-3 text-blue-400 font-bold text-xl tracking-tight">
             <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white text-xs shadow-lg shadow-blue-500/30">
